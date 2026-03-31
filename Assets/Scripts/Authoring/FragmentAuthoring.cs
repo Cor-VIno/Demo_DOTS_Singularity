@@ -36,6 +36,7 @@ namespace Vino.Fragment.Authorings
                     FastColor = new float4(authoring.FastColor.r, authoring.FastColor.g, authoring.FastColor.b, authoring.FastColor.a)
                 });
                 AddComponent(entity, new URPMaterialPropertyBaseColor { Value = new float4(1, 1, 1, 1) });
+                //AddComponent(entity, new ParticleColorOverride { Value = new float4(1, 1, 1, 1) });
             }
         }
     }

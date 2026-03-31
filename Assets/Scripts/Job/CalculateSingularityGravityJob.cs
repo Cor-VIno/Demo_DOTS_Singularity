@@ -267,6 +267,7 @@ namespace Vino.Global.Gravity.Jobs
                 colorT
             );
 
+            //color.ValueRW.Value = new float4(10.0f, 0.0f, 0.0f, 1.0f);
             // 转向逻辑保持不变
             if (currentSpeed > 0.1f)
             {

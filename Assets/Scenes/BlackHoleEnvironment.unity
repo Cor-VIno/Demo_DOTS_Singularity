@@ -357,7 +357,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Vino.BlackHole.Authoring.BlackHoleAuthoring
   Mass: 100000
   Radius: 100
-  eventHorizon: 200
+  eventHorizon: 95
   RingInnerRatio: 2
   RingOuterRatio: 0.9
   RingPercentage: 75
