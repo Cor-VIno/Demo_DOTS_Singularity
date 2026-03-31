@@ -12,8 +12,8 @@ namespace Vino.Fragment.Authorings
         public float3 Velocity;
 
         [Header("Color Mapping (粒子变色映射)")]
-        public float MinColorSpeed = 5f;
-        public float MaxColorSpeed = 40f;
+        //public float MinColorSpeed = 5f;
+        //public float MaxColorSpeed = 40f;
 
         [ColorUsage(showAlpha: true, hdr: true)]
         public Color SlowColor = new Color(1.5f, 0.1f, 0f, 1f);
@@ -30,13 +30,13 @@ namespace Vino.Fragment.Authorings
                 {
                     Mass = authoring.Mass,
                     Velocity = authoring.Velocity,
-                    MinColorSpeed = authoring.MinColorSpeed,
-                    MaxColorSpeed = authoring.MaxColorSpeed,
+                    //MinColorSpeed = authoring.MinColorSpeed,
+                    //MaxColorSpeed = authoring.MaxColorSpeed,
                     SlowColor = new float4(authoring.SlowColor.r, authoring.SlowColor.g, authoring.SlowColor.b, authoring.SlowColor.a),
                     FastColor = new float4(authoring.FastColor.r, authoring.FastColor.g, authoring.FastColor.b, authoring.FastColor.a)
                 });
-                AddComponent(entity, new URPMaterialPropertyBaseColor { Value = new float4(1, 1, 1, 1) });
-                //AddComponent(entity, new ParticleColorOverride { Value = new float4(1, 1, 1, 1) });
+                //AddComponent(entity, new URPMaterialPropertyBaseColor { Value = new float4(1, 1, 1, 1) });
+                //AddComponent(entity, new FragmentColorOverride { Value = new float4(1, 1, 1, 1) });
             }
         }
     }

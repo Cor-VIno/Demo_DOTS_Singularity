@@ -360,7 +360,7 @@ MonoBehaviour:
   eventHorizon: 95
   RingInnerRatio: 2
   RingOuterRatio: 0.9
-  RingPercentage: 75
+  RingPercentage: 99
 --- !u!4 &1670797575
 Transform:
   m_ObjectHideFlags: 0
