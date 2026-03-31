@@ -149,7 +149,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Vino.Spawner.Authoring.SpawnerAuthoring
   prefab: {fileID: 1947629860437000174, guid: 3684cd5bef67ec34bb5fa03bbb7fc4b0, type: 3}
-  count: 200000
+  count: 150000
 --- !u!4 &492104675
 Transform:
   m_ObjectHideFlags: 0
@@ -358,6 +358,9 @@ MonoBehaviour:
   Mass: 100000
   Radius: 100
   eventHorizon: 200
+  RingInnerRatio: 2
+  RingOuterRatio: 0.9
+  RingPercentage: 75
 --- !u!4 &1670797575
 Transform:
   m_ObjectHideFlags: 0

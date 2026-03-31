@@ -5,6 +5,7 @@ using Unity.Burst;
 using Unity.Transforms;
 using Vino.Fragment.Components;
 using Unity.Collections;
+using Unity.Rendering;
 
 namespace Vino.Global.Gravity.Jobs
 {
@@ -24,6 +25,10 @@ namespace Vino.Global.Gravity.Jobs
         public float spawnRadius;//刷新的半径
         public uint randomSeed;
         public float initialSpeed;//初始速度
+
+        public float ringInnerRatio;
+        public float ringOuterRatio;
+        public int ringPercentage;
 
         //[BurstCompile]
         //public void Execute([EntityIndexInQuery] int entityIndex, RefRW<FragmentData> fragment, ref LocalTransform t)
@@ -164,7 +169,7 @@ namespace Vino.Global.Gravity.Jobs
         //    t.Position += currentVel * deltaTme;
         //}
         [BurstCompile]
-        public void Execute([EntityIndexInQuery] int entityIndex, RefRW<FragmentData> fragment, ref LocalTransform t)
+        public void Execute([EntityIndexInQuery] int entityIndex, RefRW<FragmentData> fragment, ref LocalTransform t, RefRW<URPMaterialPropertyBaseColor> color)
         {
             var r = blackHolePos - t.Position;
             var distSq = math.lengthsq(r);
@@ -173,7 +178,7 @@ namespace Vino.Global.Gravity.Jobs
             // 🌟 核心魔法：用实体的唯一 ID 算出一个哈希值，决定它这辈子的“阶级”
             // 保证同一个粒子在飞行过程中，身份永远不会变
             uint hash = math.hash((uint2)(uint)entityIndex);
-            bool isRingParticle = (hash % 100) < 75; // 75% 是环带，25% 是混沌星辰
+            bool isRingParticle = (hash % 100) < ringPercentage; // 75% 是环带，25% 是混沌星辰
 
             // ================== 分层重生逻辑 ==================
             if (distSq < eventHorizonSq)
@@ -191,8 +196,8 @@ namespace Vino.Global.Gravity.Jobs
 
                     // 🌟 制造“环”的关键：把内径推远！留出 ISCO 死亡空洞
                     // 假设黑洞半径是 2，那么环至少从 10 开始刷新
-                    float minRingRadius = eventHorizonRadius * 5.0f;
-                    float randomDist = random.NextFloat(minRingRadius, spawnRadius * 0.9f);
+                    float minRingRadius = eventHorizonRadius * ringInnerRatio;
+                    float randomDist = random.NextFloat(minRingRadius, spawnRadius * ringOuterRatio);
                     newPosition = blackHolePos + diskDir * randomDist;
 
                     float3 up = new float3(0, 1, 0);
@@ -243,6 +248,30 @@ namespace Vino.Global.Gravity.Jobs
 
             fragment.ValueRW.Velocity = currentVel;
             t.Position += currentVel * deltaTme;
+
+            // ================== 🌟 视觉特效核心逻辑 ==================
+
+            float currentSpeed = math.length(currentVel);
+
+            // 🌟 直接从当前粒子 (fragment) 身上读取它的专属配置！
+            float colorT = math.smoothstep(
+                fragment.ValueRO.MinColorSpeed,
+                fragment.ValueRO.MaxColorSpeed,
+                currentSpeed
+            );
+
+            // 同样从粒子身上读取它的专属冷热颜色
+            color.ValueRW.Value = math.lerp(
+                fragment.ValueRO.SlowColor,
+                fragment.ValueRO.FastColor,
+                colorT
+            );
+
+            // 转向逻辑保持不变
+            if (currentSpeed > 0.1f)
+            {
+                t.Rotation = quaternion.LookRotationSafe(currentVel, new float3(0, 1, 0));
+            }
         }
     }
 }

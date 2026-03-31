@@ -12,6 +12,11 @@ namespace Vino.BlackHole.Authoring
         public float Radius;
         public float eventHorizon;
 
+        [Header("Accretion Disk (吸积盘设置)")]
+        public float RingInnerRatio = 5.0f;
+        [Range(0.1f, 1.0f)] public float RingOuterRatio = 0.9f;
+        [Range(0, 100)] public int RingPercentage = 75;
+
         private void OnValidate()
         {
             if (Radius <= 0.1f) Radius = 0.1f;
@@ -27,7 +32,10 @@ namespace Vino.BlackHole.Authoring
                 {
                     Mass = authoring.Mass,
                     Radius = authoring.Radius,
-                    eventHorizon = authoring.eventHorizon
+                    eventHorizon = authoring.eventHorizon,
+                    RingInnerRatio = authoring.RingInnerRatio,
+                    RingOuterRatio = authoring.RingOuterRatio,
+                    RingPercentage = authoring.RingPercentage
                 });
             }
         }
