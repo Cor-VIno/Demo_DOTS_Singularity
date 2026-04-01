@@ -41,24 +41,35 @@ namespace Vino.Global.Gravity.Systems
 
             float GM = gravityConfig.G * blackHoleData.Mass;
             float epsilonSq = gravityConfig.epsilon * gravityConfig.epsilon;
-            float blackHoleRadiusSq = blackHoleData.Radius * blackHoleData.Radius;
             float eventHorizonSq = blackHoleData.eventHorizon * blackHoleData.eventHorizon; // 消失判定距离平方
+
+            float eventHorizonRadius = math.sqrt(eventHorizonSq);
+            float safeMaxSpeed = (eventHorizonRadius * 0.8f) / deltaTime;
 
             var calculateSingularityGravityJob = new CalculateSingularityGravityJob
             {
                 GM = GM,
-                blackHoleRadiusSq = blackHoleRadiusSq,
                 blackHolePos = blackHolePos,
                 epsilonSq = epsilonSq,
                 deltaTme = deltaTime,
-                particleDrag = gravityConfig.ParticleDrag,
                 initialSpeed = gravityConfig.InitialSpeed,
                 spawnRadius = gravityConfig.SpawnRadius,
                 eventHorizonSq = eventHorizonSq,
                 randomSeed = randomSeed,
-                ringInnerRatio = blackHoleData.RingInnerRatio,
-                ringOuterRatio = blackHoleData.RingOuterRatio,
-                ringPercentage = blackHoleData.RingPercentage
+                ringPercentage = blackHoleData.RingPercentage,
+
+
+                eventHorizonRadius = eventHorizonRadius,
+                safeMaxSpeed = safeMaxSpeed,
+                safeMaxSpeedSq = safeMaxSpeed * safeMaxSpeed,
+
+                //预计算内外环真实半径
+                minRingRadius = eventHorizonRadius * blackHoleData.RingInnerRatio,
+                maxRingRadius = gravityConfig.SpawnRadius * blackHoleData.RingOuterRatio,
+
+                //预计算阻力的指数衰减乘数
+                dragMultiplierRing = math.exp(-(gravityConfig.ParticleDrag * 0.02f) * deltaTime),
+                dragMultiplierChaos = math.exp(-(gravityConfig.ParticleDrag * 2.0f) * deltaTime)
             };
 
             calculateSingularityGravityJob.ScheduleParallel();
