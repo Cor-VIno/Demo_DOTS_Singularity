@@ -149,7 +149,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Vino.Spawner.Authoring.SpawnerAuthoring
   prefab: {fileID: 1947629860437000174, guid: 3684cd5bef67ec34bb5fa03bbb7fc4b0, type: 3}
-  count: 150000
+  count: 200000
 --- !u!4 &492104675
 Transform:
   m_ObjectHideFlags: 0
@@ -309,8 +309,8 @@ MonoBehaviour:
   G: 10
   ParticleDrag: 0.01
   epsilon: 0.2
-  SpawnRadius: 1000
-  InitialSpeed: 20
+  SpawnRadius: 500
+  InitialSpeed: 5
 --- !u!4 &1603122063
 Transform:
   m_ObjectHideFlags: 0
@@ -355,12 +355,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0493ba92197f8ab4584fb075cbb7ab70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Vino.BlackHole.Authoring.BlackHoleAuthoring
-  Mass: 100000
+  Mass: 10000
   Radius: 100
-  eventHorizon: 95
-  RingInnerRatio: 2
+  eventHorizon: 90
+  RingInnerRatio: 1
   RingOuterRatio: 0.9
-  RingPercentage: 99
+  RingPercentage: 98
 --- !u!4 &1670797575
 Transform:
   m_ObjectHideFlags: 0

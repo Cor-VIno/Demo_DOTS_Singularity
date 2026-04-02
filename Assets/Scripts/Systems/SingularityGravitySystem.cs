@@ -1,13 +1,14 @@
-﻿using Unity.Entities;
+﻿using Unity.Burst;
+using Unity.Entities;
+using Unity.Jobs;
 using Unity.Mathematics;
-using Unity.Burst;
+using Unity.Transforms;
+using UnityEngine.SocialPlatforms;
 using Vino.BlackHole.Components;
 using Vino.Fragment.Components;
-using UnityEngine.SocialPlatforms;
 using Vino.Global.Gravity.Component;
-using Unity.Transforms;
 using Vino.Global.Gravity.Jobs;
-using Unity.Jobs;
+using Vino.Spawner.Component;
 
 namespace Vino.Global.Gravity.Systems
 {
@@ -45,9 +46,11 @@ namespace Vino.Global.Gravity.Systems
 
             float eventHorizonRadius = math.sqrt(eventHorizonSq);
             float safeMaxSpeed = (eventHorizonRadius * 0.8f) / deltaTime;
-
+            int currentActiveCount = SystemAPI.GetSingleton<SpawnerData>().targetActiveCount;
             var calculateSingularityGravityJob = new CalculateSingularityGravityJob
             {
+                activeCount = currentActiveCount,
+
                 GM = GM,
                 blackHolePos = blackHolePos,
                 epsilonSq = epsilonSq,
@@ -72,7 +75,7 @@ namespace Vino.Global.Gravity.Systems
                 dragMultiplierChaos = math.exp(-(gravityConfig.ParticleDrag * 2.0f) * deltaTime)
             };
 
-            calculateSingularityGravityJob.ScheduleParallel();
+            state.Dependency = calculateSingularityGravityJob.ScheduleParallel(state.Dependency);
         }
     }
 }

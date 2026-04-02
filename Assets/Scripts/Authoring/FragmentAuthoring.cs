@@ -35,8 +35,7 @@ namespace Vino.Fragment.Authorings
                     SlowColor = new float4(authoring.SlowColor.r, authoring.SlowColor.g, authoring.SlowColor.b, authoring.SlowColor.a),
                     FastColor = new float4(authoring.FastColor.r, authoring.FastColor.g, authoring.FastColor.b, authoring.FastColor.a)
                 });
-                //AddComponent(entity, new URPMaterialPropertyBaseColor { Value = new float4(1, 1, 1, 1) });
-                //AddComponent(entity, new FragmentColorOverride { Value = new float4(1, 1, 1, 1) });
+                AddComponent(entity, new FragmentVelocityColor { Value = math.length(authoring.Velocity) });
             }
         }
     }

@@ -9,6 +9,8 @@ namespace Vino.Global.Gravity.Jobs
     [BurstCompile]
     public partial struct CalculateSingularityGravityJob : IJobEntity
     {
+        public int activeCount;
+
         public float3 blackHolePos;
         public float GM;
         public float epsilonSq;
@@ -31,8 +33,17 @@ namespace Vino.Global.Gravity.Jobs
 
 
         [BurstCompile]
-        public void Execute([EntityIndexInQuery] int entityIndex, RefRW<FragmentData> fragment, ref LocalTransform t)
+        public void Execute([EntityIndexInQuery] int entityIndex,
+                        RefRW<FragmentData> fragment,
+                        RefRW<FragmentVelocityColor> shaderVel,
+                        ref LocalTransform t)
         {
+            if (entityIndex >= activeCount)
+            {
+                t.Scale = 0f;
+                return;
+            }
+            t.Scale = 1.0f;
             var r = blackHolePos - t.Position;
             var distSq = math.lengthsq(r);
 
@@ -41,7 +52,14 @@ namespace Vino.Global.Gravity.Jobs
 
             if (distSq < eventHorizonSq)
             {
-                var random = Unity.Mathematics.Random.CreateFromIndex((uint)entityIndex + randomSeed + 1);
+                uint seed = (uint)entityIndex + randomSeed + 1;
+             
+                if (seed == uint.MaxValue)
+                {
+                    seed = uint.MaxValue - 1;
+                }
+                var random = Unity.Mathematics.Random.CreateFromIndex(seed);
+                //isRingParticle = random.NextFloat() < (ringPercentage * 0.01f);
                 float3 newPosition;
                 float3 newVelocity;
 
@@ -55,36 +73,42 @@ namespace Vino.Global.Gravity.Jobs
                     //优化：尽量少用 pow，求立方可以直接连乘 ra * ra * ra，效率更高
                     float exponentialT = ra * ra * ra;
 
-                    float randomDist = math.lerp(minRingRadius, maxRingRadius, exponentialT);
-                    newPosition = blackHolePos + diskDir * randomDist;
-
                     float3 up = new float3(0, 1, 0);
                     float3 tangent = math.normalize(math.cross(up, diskDir));
 
                     float speedNoise = random.NextFloat(1.2f, 1.8f);
                     newVelocity = tangent * initialSpeed * speedNoise;
+
+                    float randomDist = math.lerp(minRingRadius, maxRingRadius, exponentialT);
+                    newPosition = blackHolePos + diskDir * randomDist;
+
+                    
                 }
                 else
                 {
                     float3 randomDir = math.normalize(random.NextFloat3(-1f, 1f));
                     float ra = random.NextFloat();
 
-                    //优化：ra * ra 替代 math.pow(ra, 2.0f)
-                    float randomDist = math.lerp(spawnRadius * 0.6f, spawnRadius * 1.5f, ra * ra);
-                    newPosition = blackHolePos + randomDir * randomDist;
-
                     float3 arbitraryUp = (math.abs(randomDir.y) < 0.9f) ? new float3(0, 1, 0) : new float3(1, 0, 0);
                     float3 semiTangent = math.normalize(math.cross(arbitraryUp, randomDir));
 
                     float speedNoise = random.NextFloat(0.2f, 0.6f);
                     newVelocity = semiTangent * initialSpeed * speedNoise;
+
+                    //优化：ra * ra 替代 math.pow(ra, 2.0f)
+                    float randomDist = math.lerp(spawnRadius * 0.6f, spawnRadius * 1.5f, ra * ra);
+                    newPosition = blackHolePos + randomDir * randomDist;
+
+                    
                 }
 
-                t.Position = newPosition;
                 fragment.ValueRW.Velocity = newVelocity;
 
+                t.Position = newPosition;
+
                 float initialSpeedValue = math.length(newVelocity);
-                t.Scale = (initialSpeedValue * 0.001f) + 0.1f;
+                shaderVel.ValueRW.Value = initialSpeedValue;
+                //t.Scale = (initialSpeedValue * 0.001f) + 0.1f;
 
                 if (initialSpeedValue > 0.1f)
                 {
@@ -112,13 +136,20 @@ namespace Vino.Global.Gravity.Jobs
                 currentVel = math.normalize(currentVel) * safeMaxSpeed;
             }
 
+            //fragment.ValueRW.Velocity = currentVel;
+            //t.Position += currentVel * deltaTme;
+
+            //float currentSpeed = math.length(currentVel);
+            //t.Scale = (currentSpeed * 0.001f) + 0.1f;
             fragment.ValueRW.Velocity = currentVel;
+            float currentSpeed = math.length(currentVel);
+            shaderVel.ValueRW.Value = currentSpeed;
+            //float speedMagnitude = math.length(currentVel);
+            //shaderVel.ValueRW.Value = new float3(speedMagnitude, speedMagnitude, speedMagnitude);
+
             t.Position += currentVel * deltaTme;
 
-            float currentSpeed = math.length(currentVel);
-            t.Scale = (currentSpeed * 0.001f) + 0.1f;
-
-            if (currentSpeed > 0.1f)
+            if (currentSpeed > 0.01f)
             {
                 t.Rotation = quaternion.LookRotationSafe(currentVel, new float3(0, 1, 0));
             }
