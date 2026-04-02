@@ -7,6 +7,7 @@ namespace Vino.Spawner.Component
         public Entity prefab;
         public int count;
         public int targetActiveCount;
+        public bool needRespawn;
     }
     public struct SpawnerTag : IComponentData { }
 }

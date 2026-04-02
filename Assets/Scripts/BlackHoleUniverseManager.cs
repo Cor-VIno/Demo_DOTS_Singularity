@@ -1,4 +1,5 @@
-﻿using Unity.Entities;
+﻿using TMPro;
+using Unity.Entities;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
@@ -23,6 +24,9 @@ public class BlackHoleUniverseManager : MonoBehaviour
     public Slider fastR, fastG, fastB;
     public Slider slowR, slowG, slowB;
 
+    [Header("全局粒子上限控制 (重启宇宙)")]
+    public TMP_InputField maxLimitInputField;
+
     private EntityManager _entityManager;
     private Entity _spawnerEntity;
     private Entity _gravityEntity;
@@ -32,6 +36,11 @@ public class BlackHoleUniverseManager : MonoBehaviour
     void Start()
     {
         _entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+
+        if (maxLimitInputField != null)
+        {
+            maxLimitInputField.onEndEdit.AddListener(OnMaxLimitChanged);
+        }
     }
 
     void Update()
@@ -106,5 +115,32 @@ public class BlackHoleUniverseManager : MonoBehaviour
 
         Shader.SetGlobalColor("_FastColor", currentFastColor);
         Shader.SetGlobalColor("_SlowColor", currentSlowColor);
+    }
+
+    public void OnMaxLimitChanged(string inputText)
+    {
+        if (!_isInitialized) return;
+
+        if (int.TryParse(inputText, out int newMaxCount))
+        {
+            newMaxCount = Mathf.Max(newMaxCount, 100);
+
+            var particleQuery = _entityManager.CreateEntityQuery(typeof(Vino.Fragment.Components.FragmentTag));
+            _entityManager.DestroyEntity(particleQuery);
+
+            var sData = _entityManager.GetComponentData<SpawnerData>(_spawnerEntity);
+            sData.count = newMaxCount;
+            sData.targetActiveCount = newMaxCount;
+            sData.needRespawn = true;
+            _entityManager.SetComponentData(_spawnerEntity, sData);
+            //Debug.Log($"宇宙已重启！新的粒子上限为：{newMaxCount}");
+        }
+        else
+        {
+            if (countSlider != null)
+            {
+                maxLimitInputField.text = countSlider.maxValue.ToString();
+            }
+        }
     }
 }

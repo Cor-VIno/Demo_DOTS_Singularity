@@ -20,7 +20,8 @@ namespace Vino.Spawner.Authoring
                 {
                     prefab = fragmentEntity,
                     count = authoring.count,
-                    targetActiveCount = authoring.count
+                    targetActiveCount = authoring.count,
+                    needRespawn = true
                 });
             }
         }
