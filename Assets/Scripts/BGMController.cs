@@ -4,45 +4,43 @@ using UnityEngine.UI;
 public class BGMController : MonoBehaviour
 {
     [Header("音乐文件")]
-    public AudioClip introClip;
-    public AudioClip loopClip;
+    public AudioClip bgmClip; // 现在只需要一个音乐文件
 
     [Header("UI 控制")]
     public Slider volumeSlider;
 
-    private AudioSource _introSource;
-    private AudioSource _loopSource;
+    private AudioSource _bgmSource; // 只需要一个音频播放器
 
     void Start()
     {
-        _introSource = gameObject.AddComponent<AudioSource>();
-        _loopSource = gameObject.AddComponent<AudioSource>();
+        // 动态创建并配置 AudioSource
+        _bgmSource = gameObject.AddComponent<AudioSource>();
+        _bgmSource.clip = bgmClip;
+        _bgmSource.loop = true; // 开启引擎底层无限循环
 
-        _introSource.clip = introClip;
-        _loopSource.clip = loopClip;
-
-        _loopSource.loop = true;
+        // 初始化音量
         float initialVolume = volumeSlider != null ? volumeSlider.value : 0.5f;
         SetVolume(initialVolume);
 
+        // 监听滑条事件
         if (volumeSlider != null)
         {
             volumeSlider.onValueChanged.AddListener(SetVolume);
         }
 
-        if (introClip != null && loopClip != null)
+        // 只要有文件就直接播放
+        if (bgmClip != null)
         {
-            double startDspTime = AudioSettings.dspTime + 0.1;
-
-            double introDuration = (double)introClip.samples / introClip.frequency;
-
-            _introSource.PlayScheduled(startDspTime);
-            _loopSource.PlayScheduled(startDspTime + introDuration);
+            _bgmSource.Play();
         }
     }
+
+    // 控制音量的函数
     public void SetVolume(float vol)
     {
-        if (_introSource != null) _introSource.volume = vol;
-        if (_loopSource != null) _loopSource.volume = vol;
+        if (_bgmSource != null)
+        {
+            _bgmSource.volume = vol;
+        }
     }
 }

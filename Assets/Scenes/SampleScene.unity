@@ -14600,8 +14600,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 551ea2314225a084cbc753c173bebcee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BGMController
-  introClip: {fileID: 8300000, guid: 7b1c2ecda0e9426418beeacd31cca770, type: 3}
-  loopClip: {fileID: 8300000, guid: 7d7d8c3c40b0f7c47ba2f5dd06bdd43b, type: 3}
+  bgmClip: {fileID: 8300000, guid: 54740228acaa4a845a47f2bb4f0c1054, type: 3}
   volumeSlider: {fileID: 915205042}
 --- !u!1 &2098776059
 GameObject:
